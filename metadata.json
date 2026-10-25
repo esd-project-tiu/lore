@@ -1,0 +1,6 @@
+{
+  "name": "Lore",
+  "description": "Worldbuilding assistant for writers and tabletop game masters: describe settings or blend sources into interconnected realm maps.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

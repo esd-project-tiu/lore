@@ -1,0 +1,250 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --paper-page: #f3e7cf;
+    --paper-panel: #ead9b8;
+    --paper-raised: #fbf4e4;
+    --ink-primary: #2b2118;
+    --ink-secondary: #5a4632;
+    --ink-muted: #8a7355;
+    --accent-sienna: #a2562b;
+    --accent-forest: #4a6b4f;
+    --accent-sea: #4f7a8a;
+    --accent-seal: #9c2f2f;
+
+    --font-heading: 'IM Fell English', Georgia, serif;
+    --font-sc: 'Cormorant SC', Georgia, serif;
+    --font-body: 'Lora', 'Crimson Pro', Georgia, serif;
+    --font-hand: 'Caveat', cursive, sans-serif;
+    --font-notes: 'Special Elite', monospace;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--paper-page);
+    color: var(--ink-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    /* Soft parchment vignette and subtle paper grain */
+    background-image: 
+      radial-gradient(circle at 50% 50%, rgba(251, 244, 228, 0.4) 0%, rgba(228, 212, 178, 0.7) 100%),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, .font-heading {
+    font-family: var(--font-heading);
+    letter-spacing: -0.01em;
+    color: var(--ink-primary);
+  }
+
+  .font-sc, .font-cinzel {
+    font-family: var(--font-sc);
+    letter-spacing: 0.06em;
+  }
+
+  .font-hand {
+    font-family: var(--font-hand);
+  }
+
+  .font-notes {
+    font-family: var(--font-notes);
+  }
+}
+
+/* Aged Parchment Card / Panel Surfaces */
+.bg-parchment-page {
+  background-color: var(--paper-page);
+}
+
+.bg-parchment-panel {
+  background-color: var(--paper-panel);
+  border: 1px solid #d4c29d;
+  box-shadow: 0 4px 18px -4px rgba(43, 33, 24, 0.12), 0 1px 3px rgba(43, 33, 24, 0.08);
+}
+
+.bg-parchment-raised {
+  background-color: var(--paper-raised);
+  border: 1px solid #dfcfad;
+  box-shadow: 0 6px 20px -4px rgba(43, 33, 24, 0.15), 0 1px 4px rgba(43, 33, 24, 0.08);
+}
+
+/* Faint tactile fold lines across large panels */
+.paper-fold {
+  position: relative;
+}
+.paper-fold::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent 0%, rgba(43, 33, 24, 0.08) 20%, rgba(255, 255, 255, 0.3) 21%, rgba(43, 33, 24, 0.06) 80%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Cartographic Card / Tag with subtle handcrafted rotation */
+.atlas-tag-1 {
+  transform: rotate(-0.45deg);
+}
+.atlas-tag-2 {
+  transform: rotate(0.4deg);
+}
+.atlas-tag-3 {
+  transform: rotate(-0.3deg);
+}
+.atlas-tag-4 {
+  transform: rotate(0.55deg);
+}
+
+.atlas-cartouche {
+  border: 2px solid #3c2e22;
+  box-shadow: 0 4px 14px rgba(43, 33, 24, 0.1), inset 0 0 0 1px #d6c39f;
+  position: relative;
+}
+
+/* Wax Seal Buttons & Stamped Labels */
+.btn-seal, .btn-primary {
+  background-color: var(--accent-sienna);
+  color: #fbf4e4;
+  border: 1px solid #82401d;
+  box-shadow: 0 3px 8px rgba(162, 86, 43, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.btn-seal:hover, .btn-primary:hover {
+  background-color: #924b22;
+  box-shadow: 0 4px 12px rgba(162, 86, 43, 0.35);
+}
+.btn-seal:active, .btn-primary:active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow: 0 1px 3px rgba(162, 86, 43, 0.3);
+}
+
+.btn-ink, .btn-secondary {
+  background-color: transparent;
+  color: var(--ink-primary);
+  border: 1px solid #755c41;
+  box-shadow: 0 1px 3px rgba(43, 33, 24, 0.06);
+  transition: all 0.15s ease;
+}
+.btn-ink:hover, .btn-secondary:hover {
+  background-color: rgba(90, 70, 50, 0.07);
+  border-color: var(--ink-primary);
+  color: var(--ink-primary);
+}
+.btn-ink:active, .btn-secondary:active {
+  transform: translateY(1px);
+}
+
+/* Wax Seal Accent */
+.wax-seal {
+  background: radial-gradient(circle at 35% 35%, #b73e3e 0%, #9c2f2f 60%, #6e1a1a 100%);
+  border: 1px solid #631414;
+  box-shadow: 0 2px 6px rgba(156, 47, 47, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+/* Ruled paper lines for inputs with ink underline on focus */
+.input-ruled {
+  background-color: transparent;
+  border: none;
+  border-bottom: 1.5px solid #ab9676;
+  border-radius: 0;
+  color: var(--ink-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input-ruled:focus {
+  outline: none;
+  border-bottom-color: var(--accent-sienna);
+  box-shadow: 0 1.5px 0 0 var(--accent-sienna);
+}
+
+/* Ruled Box Input */
+.input-parchment {
+  background-color: #fbf5e6;
+  border: 1.5px solid #c9b793;
+  color: var(--ink-primary);
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input-parchment:focus {
+  outline: none;
+  border-color: var(--accent-sienna);
+  box-shadow: 0 0 0 2px rgba(162, 86, 43, 0.15);
+}
+
+/* Hand-drawn divider */
+.divider-wavy {
+  background-image: radial-gradient(circle at 10px 0, transparent 0, transparent 4px, #a89475 4px, #a89475 5px, transparent 5px);
+  background-size: 20px 8px;
+  height: 8px;
+  width: 100%;
+}
+
+/* Ribbon Place Label */
+.ribbon-label {
+  position: relative;
+  background: #fbf5e6;
+  border: 1px solid #826a4c;
+  box-shadow: 0 2px 5px rgba(43, 33, 24, 0.15);
+}
+
+/* Custom Inked Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #ebd8b5;
+}
+::-webkit-scrollbar-thumb {
+  background: #a89475;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #806c4f;
+}
+
+/* Ink Bleed / Fade-In animation */
+@keyframes inkBleed {
+  0% {
+    opacity: 0;
+    filter: blur(4px) contrast(0.8);
+    transform: scale(0.96);
+  }
+  70% {
+    opacity: 0.9;
+    filter: blur(0.5px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0) contrast(1);
+    transform: scale(1);
+  }
+}
+
+.animate-ink-bleed {
+  animation: inkBleed 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes inkPathDraw {
+  to {
+    stroke-dashoffset: -120;
+  }
+}
+
+.animate-ink-trail {
+  animation: inkPathDraw 28s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ink-bleed,
+  .animate-ink-trail,
+  .animate-spin,
+  .animate-ping,
+  .animate-pulse {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,131 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all access by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    // Validation helper for World documents
+    function isValidWorld(data) {
+      return data.keys().hasAll(['userId', 'title', 'type', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly([
+          'userId', 'title', 'type', 'note', 'genre', 'status',
+          'tone', 'themes', 'blurb', 'places', 'characters', 'storyHooks',
+          'sources', 'generationType', 'isPublic', 'createdAt', 'updatedAt'
+        ])
+        && data.userId is string && data.userId == request.auth.uid
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 200
+        && data.type is string && (data.type == 'book' || data.type == 'show' || data.type == 'setting' || data.type == 'blend')
+        && (!('note' in data) || (data.note is string && data.note.size() <= 2000))
+        && (!('genre' in data) || (data.genre is string && data.genre.size() <= 100))
+        && (!('status' in data) || (data.status is string && (data.status == 'saved' || data.status == 'draft' || data.status == 'exploring' || data.status == 'ready')))
+        && (!('tone' in data) || (data.tone is string && data.tone.size() <= 300))
+        && (!('themes' in data) || (data.themes is list && data.themes.size() <= 10))
+        && (!('blurb' in data) || (data.blurb is string && data.blurb.size() <= 1500))
+        && (!('places' in data) || (data.places is list && data.places.size() <= 20))
+        && (!('characters' in data) || (data.characters is list && data.characters.size() <= 15))
+        && (!('storyHooks' in data) || (data.storyHooks is list && data.storyHooks.size() <= 10))
+        && (!('sources' in data) || (data.sources is list && data.sources.size() <= 6))
+        && (!('generationType' in data) || (data.generationType is string && data.generationType.size() <= 32))
+        && (!('isPublic' in data) || (data.isPublic is bool))
+        && data.createdAt is string && data.createdAt.size() <= 64
+        && data.updatedAt is string && data.updatedAt.size() <= 64;
+    }
+
+    // Validation helper for Usage documents
+    function isValidUsage(data) {
+      return data.keys().hasAll(['userId', 'worldCount', 'generationCount', 'updatedAt'])
+        && data.keys().hasOnly(['userId', 'worldCount', 'generationCount', 'lastActive', 'lastGenerationDate', 'dailyGenerationsCount', 'updatedAt'])
+        && data.userId is string && data.userId == request.auth.uid
+        && data.worldCount is number && data.worldCount >= 0
+        && data.generationCount is number && data.generationCount >= 0
+        && (!('lastGenerationDate' in data) || (data.lastGenerationDate is string && data.lastGenerationDate.size() <= 32))
+        && (!('dailyGenerationsCount' in data) || (data.dailyGenerationsCount is number && data.dailyGenerationsCount >= 0))
+        && data.updatedAt is string && data.updatedAt.size() <= 64;
+    }
+
+    // Validation helper for Generation Cache documents
+    function isValidCache(data) {
+      return data.keys().hasAll(['userId', 'cacheKey', 'content', 'createdAt'])
+        && data.keys().hasOnly(['userId', 'cacheKey', 'content', 'createdAt'])
+        && data.userId is string && data.userId == request.auth.uid
+        && data.cacheKey is string && data.cacheKey.size() > 0 && data.cacheKey.size() <= 256
+        && data.content is string && data.content.size() <= 35000
+        && data.createdAt is string && data.createdAt.size() <= 64;
+    }
+
+    // Catalog collection: public read for all, read-only for clients
+    match /catalog/{itemId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Worlds collection: users can read their own worlds, or any world where isPublic == true
+    // Only the owner can create, update, or delete
+    match /worlds/{worldId} {
+      allow get: if (resource.data.isPublic == true) || (isSignedIn() && existing().userId == request.auth.uid);
+      allow list: if (resource.data.isPublic == true) || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() 
+        && isValidId(worldId)
+        && isValidWorld(incoming())
+        && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn()
+        && isValidId(worldId)
+        && isValidWorld(incoming())
+        && existing().userId == request.auth.uid
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    // Usage collection: strictly per-user usage tracking
+    match /usage/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isOwner(userId)
+        && isValidUsage(incoming());
+      allow update: if isOwner(userId)
+        && isValidUsage(incoming())
+        && incoming().userId == existing().userId;
+      allow delete: if isOwner(userId);
+    }
+
+    // Generation cache collection: stores generation results per title/prompt
+    match /generation_cache/{cacheId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() 
+        && isValidId(cacheId)
+        && isValidCache(incoming());
+      allow update: if isSignedIn()
+        && isValidId(cacheId)
+        && isValidCache(incoming())
+        && existing().userId == request.auth.uid
+        && incoming().userId == existing().userId;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+  }
+}
